@@ -3,33 +3,48 @@
 #include <iostream>
 #include <memory>
 
+template <typename T>
 class Node {
 public:
-    int data;
-    std::shared_ptr<Node> next;
-    std::weak_ptr<Node> prev;
+    T data;
+    Node<T>* next;
+    Node<T>* prev;
 
-    Node(int n) : data(n), next(nullptr){};
-    ~Node() {
-        std::cout << "Delete Node{" << data << "}" << std::endl;
+    Node(T n) : data(n), next(nullptr), prev(nullptr){};
+    ~Node() {}
+
+    friend std::ostream& operator<<(std::ostream& os, Node<T>* const& node) {
+        return os << std::to_string(node->data);
     }
-
-    friend std::ostream& operator<<(std::ostream& os, Node* const& node);
 };
 
+template <typename T>
 class LinkedList {
 private:
-    std::shared_ptr<Node> m_head;
-    std::shared_ptr<Node> m_tail;
+    Node<T>* m_head;
+    Node<T>* m_tail;
     unsigned int m_size;
 
 public:
     LinkedList() : m_head(nullptr), m_tail(nullptr), m_size(0){};
     ~LinkedList();
-    void insertHead(int data);
-    void insertTail(int data);
+
+    void insertHead(T data);
+    void insertTail(T data);
     unsigned int size();
-    friend std::ostream& operator<<(std::ostream& os, LinkedList* const& list);
+
+    friend std::ostream& operator<<(std::ostream& os, LinkedList<T>* const& list) {
+        Node<T>* node = list->m_head;
+
+        while (node != nullptr) {
+            os << node << "->";
+            node = node->next;
+        }
+
+        os << "(null)";
+
+        return os;
+    }
 };
 
 #endif
