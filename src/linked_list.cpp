@@ -3,48 +3,56 @@
 #include <string>
 #include <utility>
 
-LinkedList::~LinkedList() {}
+LinkedList::~LinkedList() {
+    Node* temp;
+
+    while (m_head != nullptr) {
+        temp = m_head;
+        m_head = m_head->next;
+        delete temp;
+    }
+}
 
 void LinkedList::insertTail(int data) {
-    m_size++;
+    Node* node = new Node(data);
 
-    if (!m_tail) {
-        m_tail = std::make_shared<Node>(data);
+    if (m_tail == nullptr) {
+        m_tail = node;
         m_head = m_tail;
-        return;
+    } else {
+        node->prev = m_tail;
+        m_tail->next = node;
+        m_tail = node;
     }
 
-    std::shared_ptr<Node> node = std::make_shared<Node>(data);
-    node->prev = m_tail;
-    m_tail->next = node;
-    m_tail = std::move(node);
+    m_size++;
 }
 
 void LinkedList::insertHead(int data) {
-    m_size++;
+    Node* node = new Node(data);
 
-    if (!m_head) {
-        m_head = std::make_shared<Node>(data);
+    if (m_head == nullptr) {
+        m_head = node;
         m_tail = m_head;
-        return;
+    } else {
+        node->next = m_head;
+        m_head->prev = node;
+        m_head = node;
     }
 
-    std::shared_ptr<Node> temp = std::make_shared<Node>(data);
-
-    temp->next = m_head;
-    m_head = std::move(temp);
+    m_size++;
 }
 
-unsigned int LinkedList::size() {
+size_t LinkedList::size() {
     return m_size;
 }
 
 std::ostream& operator<<(std::ostream& os, LinkedList* const& list) {
-    Node* node = list->m_head.get();
+    Node* node = list->m_head;
 
     while (node != nullptr) {
-        os << node << "->";
-        node = node->next.get();
+        os << "[" << node << "]->";
+        node = node->next;
     }
 
     os << "(null)";
@@ -53,5 +61,5 @@ std::ostream& operator<<(std::ostream& os, LinkedList* const& list) {
 }
 
 std::ostream& operator<<(std::ostream& os, Node* const& node) {
-    return os << std::to_string(node->data);
+    return os << node->data;
 }

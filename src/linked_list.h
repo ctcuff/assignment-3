@@ -6,29 +6,27 @@
 class Node {
 public:
     int data;
-    std::shared_ptr<Node> next;
-    std::weak_ptr<Node> prev;
+    Node* next;
+    Node* prev;
 
     Node(int n) : data(n), next(nullptr){};
-    ~Node() {
-        std::cout << "Delete Node{" << data << "}" << std::endl;
-    }
+    ~Node() {}
 
     friend std::ostream& operator<<(std::ostream& os, Node* const& node);
 };
 
 class LinkedList {
 private:
-    std::shared_ptr<Node> m_head;
-    std::shared_ptr<Node> m_tail;
-    unsigned int m_size;
+    Node* m_head;
+    Node* m_tail;
+    size_t m_size;
 
 public:
     LinkedList() : m_head(nullptr), m_tail(nullptr), m_size(0){};
     ~LinkedList();
     void insertHead(int data);
     void insertTail(int data);
-    unsigned int size();
+    size_t size();
     friend std::ostream& operator<<(std::ostream& os, LinkedList* const& list);
 };
 
