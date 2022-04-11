@@ -1,5 +1,5 @@
-#ifndef LINKED_LIST_H
-#define LINKED_LIST_H
+#ifndef CONCURRENT_LINKED_LIST_H
+#define CONCURRENT_LINKED_LIST_H
 #include <iostream>
 #include <memory>
 
@@ -15,19 +15,20 @@ public:
     friend std::ostream& operator<<(std::ostream& os, Node* const& node);
 };
 
-class LinkedList {
+class ConcurrentLinkedList {
 private:
     Node* m_head;
     Node* m_tail;
     size_t m_size;
 
 public:
-    LinkedList() : m_head(nullptr), m_tail(nullptr), m_size(0){};
-    ~LinkedList();
+    ConcurrentLinkedList() : m_head(nullptr), m_tail(nullptr), m_size(0){};
+    ~ConcurrentLinkedList();
     void insertHead(int data);
     void insertTail(int data);
     size_t size();
-    friend std::ostream& operator<<(std::ostream& os, LinkedList* const& list);
+    bool contains(int data);
+    friend std::ostream& operator<<(std::ostream& os, ConcurrentLinkedList* const& list);
 };
 
 #endif

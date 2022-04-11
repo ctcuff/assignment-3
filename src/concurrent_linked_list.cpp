@@ -1,9 +1,9 @@
-#include "linked_list.h"
+#include "concurrent_linked_list.h"
 #include <iostream>
 #include <string>
 #include <utility>
 
-LinkedList::~LinkedList() {
+ConcurrentLinkedList::~ConcurrentLinkedList() {
     Node* temp;
 
     while (m_head != nullptr) {
@@ -11,9 +11,11 @@ LinkedList::~LinkedList() {
         m_head = m_head->next;
         delete temp;
     }
+
+    std::cout << "Deleted" << std::endl;
 }
 
-void LinkedList::insertTail(int data) {
+void ConcurrentLinkedList::insertTail(int data) {
     Node* node = new Node(data);
 
     if (m_tail == nullptr) {
@@ -28,7 +30,7 @@ void LinkedList::insertTail(int data) {
     m_size++;
 }
 
-void LinkedList::insertHead(int data) {
+void ConcurrentLinkedList::insertHead(int data) {
     Node* node = new Node(data);
 
     if (m_head == nullptr) {
@@ -43,16 +45,34 @@ void LinkedList::insertHead(int data) {
     m_size++;
 }
 
-size_t LinkedList::size() {
+size_t ConcurrentLinkedList::size() {
     return m_size;
 }
 
-std::ostream& operator<<(std::ostream& os, LinkedList* const& list) {
-    Node* node = list->m_head;
+bool ConcurrentLinkedList::contains(int data) {
+    if (m_size == 0) {
+        return false;
+    }
 
-    while (node != nullptr) {
-        os << "[" << node << "]->";
-        node = node->next;
+    Node* temp = m_head;
+
+    while (temp != nullptr) {
+        if (temp->data == data) {
+            return true;
+        }
+
+        temp = temp->next;
+    }
+
+    return false;
+}
+
+std::ostream& operator<<(std::ostream& os, ConcurrentLinkedList* const& list) {
+    Node* temp = list->m_head;
+
+    while (temp != nullptr) {
+        os << "[" << temp << "]->";
+        temp = temp->next;
     }
 
     os << "(null)";
