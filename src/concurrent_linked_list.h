@@ -1,5 +1,6 @@
 #ifndef CONCURRENT_LINKED_LIST_H
 #define CONCURRENT_LINKED_LIST_H
+#include <cstddef>
 #include <iostream>
 #include <memory>
 #include <mutex>
@@ -31,11 +32,12 @@ public:
     void orderedInsert(int data);
     void insertHead(int data);
     void insertTail(int data);
-    size_t size();
+    void remove(int key);
     bool contains(int data);
+    std::size_t size();
     bool isSorted();
 
-    friend std::ostream& operator<<(std::ostream& os, ConcurrentLinkedList* const& list);
+    friend std::ostream& operator<<(std::ostream& os, std::unique_ptr<ConcurrentLinkedList> const& list);
 };
 
 #endif

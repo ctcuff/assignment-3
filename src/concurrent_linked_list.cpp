@@ -47,7 +47,47 @@ void ConcurrentLinkedList::insertHead(int data) {
     m_mutex.unlock();
 }
 
-size_t ConcurrentLinkedList::size() {
+// TODO: Don't lock the entire list at once
+void ConcurrentLinkedList::remove(int key) {
+    if (m_head == nullptr) {
+        return;
+    }
+
+    Node* curr = m_head;
+    m_mutex.lock();
+
+    if (curr->data == key) {
+        Node* temp = m_head;
+        m_head = m_head->next;
+
+        delete temp;
+
+        if (m_head != nullptr) {
+            m_head->prev = nullptr;
+        }
+
+        m_size--;
+    } else {
+        while (curr->next != nullptr) {
+            if (curr->next->data == key) {
+                Node* temp = curr->next;
+                curr->next = curr->next->next;
+
+                if (curr->next != nullptr) {
+                    curr->next->prev = curr;
+                }
+
+                delete temp;
+                m_size--;
+                break;
+            }
+            curr = curr->next;
+        }
+    }
+    m_mutex.unlock();
+}
+
+std::size_t ConcurrentLinkedList::size() {
     return m_size;
 }
 
@@ -129,7 +169,11 @@ bool ConcurrentLinkedList::isSorted() {
     return true;
 }
 
-std::ostream& operator<<(std::ostream& os, ConcurrentLinkedList* const& list) {
+std::ostream& operator<<(std::ostream& os, std::unique_ptr<ConcurrentLinkedList> const& list) {
+    if (list == nullptr) {
+        return os << "(null)";
+    }
+    
     Node* temp = list->m_head;
 
     while (temp != nullptr) {
@@ -137,7 +181,7 @@ std::ostream& operator<<(std::ostream& os, ConcurrentLinkedList* const& list) {
         temp = temp->next;
     }
 
-    os << "(null)\n";
+    os << "(null)";
 
     return os;
 }

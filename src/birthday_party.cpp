@@ -54,7 +54,7 @@ int main() {
     std::cout << "Generating numbers..." << std::endl;
 
     // Note: the number of random numbers must be a multiple of THREAD_COUNT
-    auto numbers = generateUnorderedSet(100);
+    auto numbers = generateUnorderedSet(50);
 
     for (int i = 0; i < THREAD_COUNT; i++) {
         threads[i] = std::thread(addToList, list.get(), numbers.get());
@@ -71,7 +71,7 @@ int main() {
     auto duration = std::chrono::duration<double, std::milli>(end - start);
 
     std::cout << "Finished in " << duration.count() << "ms" << std::endl;
-    std::cout << list.get() << std::endl;
+    std::cout << list << std::endl;
     std::cout << "Size: " << list->size() << std::endl;
 
     if (!list->isSorted()) {
