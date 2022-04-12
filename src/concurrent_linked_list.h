@@ -34,8 +34,10 @@ public:
     void insertTail(int data);
     void remove(int key);
     bool contains(int data);
+    int removeHead();
     std::size_t size();
     bool isSorted();
+    bool empty();
 
     friend std::ostream& operator<<(std::ostream& os, std::unique_ptr<ConcurrentLinkedList> const& list);
 };

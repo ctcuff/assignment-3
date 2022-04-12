@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include <climits>
 
 ConcurrentLinkedList::~ConcurrentLinkedList() {
     Node* temp;
@@ -87,8 +88,35 @@ void ConcurrentLinkedList::remove(int key) {
     m_mutex.unlock();
 }
 
+int ConcurrentLinkedList::removeHead() {
+    if (m_head == nullptr) {
+        return INT_MIN;
+    }
+
+    m_mutex.lock();
+
+    int value = m_head->data;
+    Node* temp = m_head;
+    
+    m_head = m_head->next;
+
+    delete temp;
+
+    if (m_head != nullptr) {
+        m_head->prev = nullptr;
+    }
+
+    m_size--;
+    m_mutex.unlock();
+    return value;
+}
+
 std::size_t ConcurrentLinkedList::size() {
     return m_size;
+}
+
+bool ConcurrentLinkedList::empty() {
+    return m_size == 0;
 }
 
 // Inserts a node into the linked list while keepind the list
@@ -132,7 +160,7 @@ void ConcurrentLinkedList::orderedInsert(int data) {
     m_mutex.unlock();
 }
 
-bool ConcurrentLinkedList::contains(int data) {
+bool ConcurrentLinkedList::contains(int key) {
     m_mutex.lock();
 
     if (m_size == 0) {
@@ -143,7 +171,7 @@ bool ConcurrentLinkedList::contains(int data) {
     Node* temp = m_head;
 
     while (temp != nullptr) {
-        if (temp->data == data) {
+        if (temp->data == key) {
             m_mutex.unlock();
             return true;
         }

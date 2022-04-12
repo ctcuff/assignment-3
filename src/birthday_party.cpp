@@ -10,7 +10,12 @@
 #include <unordered_set>
 #include <vector>
 
-#define THREAD_COUNT 4
+#define THREAD_COUNT 1
+// Note: the number of guests numbers must be a multiple of THREAD_COUNT
+#define NUM_GUESTS 4
+#define TASK_ADD_PRESENT 0
+#define TASK_WRITE_CARD 1
+#define TASK_SEARCH_FOR_PRESENT 2
 
 std::mutex mutex;
 
@@ -35,32 +40,62 @@ std::unique_ptr<std::unordered_set<int>> generateUnorderedSet(int size) {
     return std::make_unique<std::unordered_set<int>>(vec->begin(), vec->end());
 }
 
-void addToList(ConcurrentLinkedList* list, std::unordered_set<int>* numbers) {
-    while (!numbers->empty()) {
-        mutex.lock();
-        auto iter = numbers->begin();
-        int num = *iter;
-        numbers->erase(iter);
-        mutex.unlock();
+void completeTask(ConcurrentLinkedList* list, std::unordered_set<int>* gifts, std::unordered_set<int>* cards) {
+    while (cards->size() != NUM_GUESTS) {
+        int task = generateRandomNumber(0, 2);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-        list->orderedInsert(num);
+        switch (task) {
+            case TASK_ADD_PRESENT: {
+                if (gifts->empty()) {
+                    continue;
+                }
+
+                mutex.lock();
+                auto iter = gifts->begin();
+                int num = *iter;
+                gifts->erase(iter);
+                mutex.unlock();
+
+                list->orderedInsert(num);
+                break;
+            }
+            case TASK_WRITE_CARD: {
+                if (!list->empty()) {
+                    int guest = list->removeHead();
+                    std::cout << "Thank you " << guest << "!" << std::endl;
+                    cards->insert(guest);
+                }
+                break;
+            }
+            case TASK_SEARCH_FOR_PRESENT: {
+                int randomGuest = generateRandomNumber(0, NUM_GUESTS - 1);
+                bool found = list->contains(randomGuest);
+
+                std::cout << "Minotaur: guest with ID "
+                          << randomGuest
+                          << " was " << (found ? "found" : "not found")
+                          << std::endl;
+                break;
+            }
+        }
     }
 }
 
 int main() {
     std::unique_ptr<ConcurrentLinkedList> list = std::make_unique<ConcurrentLinkedList>();
+    std::unique_ptr<std::unordered_set<int>> cards = std::make_unique<std::unordered_set<int>>();
     std::thread threads[THREAD_COUNT] = {};
 
     std::cout << "Generating numbers..." << std::endl;
 
-    // Note: the number of random numbers must be a multiple of THREAD_COUNT
-    auto numbers = generateUnorderedSet(50);
+    auto numbers = generateUnorderedSet(NUM_GUESTS);
 
     for (int i = 0; i < THREAD_COUNT; i++) {
-        threads[i] = std::thread(addToList, list.get(), numbers.get());
+        threads[i] = std::thread(completeTask, list.get(), numbers.get(), cards.get());
     }
 
-    std::cout << "Inserting..." << std::endl;
+    std::cout << "Starting tasks..." << std::endl;
     auto start = std::chrono::high_resolution_clock::now();
 
     for (std::thread& thread : threads) {
@@ -71,10 +106,4 @@ int main() {
     auto duration = std::chrono::duration<double, std::milli>(end - start);
 
     std::cout << "Finished in " << duration.count() << "ms" << std::endl;
-    std::cout << list << std::endl;
-    std::cout << "Size: " << list->size() << std::endl;
-
-    if (!list->isSorted()) {
-        std::cout << "Oh no!!! The list is unsorted???" << std::endl;
-    }
 }
