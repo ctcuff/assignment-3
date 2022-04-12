@@ -11,12 +11,11 @@ ConcurrentLinkedList::~ConcurrentLinkedList() {
         m_head = m_head->next;
         delete temp;
     }
-
-    std::cout << "Deleted" << std::endl;
 }
 
 void ConcurrentLinkedList::insertTail(int data) {
     Node* node = new Node(data);
+    m_mutex.lock();
 
     if (m_tail == nullptr) {
         m_tail = node;
@@ -28,10 +27,12 @@ void ConcurrentLinkedList::insertTail(int data) {
     }
 
     m_size++;
+    m_mutex.unlock();
 }
 
 void ConcurrentLinkedList::insertHead(int data) {
     Node* node = new Node(data);
+    m_mutex.lock();
 
     if (m_head == nullptr) {
         m_head = node;
@@ -43,14 +44,59 @@ void ConcurrentLinkedList::insertHead(int data) {
     }
 
     m_size++;
+    m_mutex.unlock();
 }
 
 size_t ConcurrentLinkedList::size() {
     return m_size;
 }
 
+// Inserts a node into the linked list while keepind the list
+// sorted in ascending order
+void ConcurrentLinkedList::orderedInsert(int data) {
+    m_mutex.lock();
+
+    Node* newNode = new Node(data);
+
+    if (m_head == nullptr) {
+        m_head = newNode;
+        m_tail = newNode;
+    } else if (m_head->data >= newNode->data) {
+        newNode->next = m_head;
+        newNode->next->prev = newNode;
+        m_head = newNode;
+    } else {
+        Node* curr = m_head;
+
+        while (curr->next != nullptr && curr->next->data < newNode->data) {
+            curr = curr->next;
+        }
+
+        newNode->next = curr->next;
+
+        if (curr->next != nullptr) {
+            newNode->next->prev = newNode;
+        }
+
+        curr->next = newNode;
+        newNode->prev = curr;
+
+        // In this case, we've reached the end of the list so
+        // we need to update the tail node
+        if (newNode->next == nullptr) {
+            m_tail = newNode;
+        }
+    }
+
+    m_size++;
+    m_mutex.unlock();
+}
+
 bool ConcurrentLinkedList::contains(int data) {
+    m_mutex.lock();
+
     if (m_size == 0) {
+        m_mutex.unlock();
         return false;
     }
 
@@ -58,13 +104,29 @@ bool ConcurrentLinkedList::contains(int data) {
 
     while (temp != nullptr) {
         if (temp->data == data) {
+            m_mutex.unlock();
             return true;
         }
 
         temp = temp->next;
     }
 
+    m_mutex.unlock();
     return false;
+}
+
+bool ConcurrentLinkedList::isSorted() {
+    Node* curr = m_head;
+
+    while (curr != nullptr && curr->next != nullptr) {
+        if (curr->data > curr->next->data) {
+            return false;
+        }
+
+        curr = curr->next;
+    }
+
+    return true;
 }
 
 std::ostream& operator<<(std::ostream& os, ConcurrentLinkedList* const& list) {
@@ -75,11 +137,11 @@ std::ostream& operator<<(std::ostream& os, ConcurrentLinkedList* const& list) {
         temp = temp->next;
     }
 
-    os << "(null)";
+    os << "(null)\n";
 
     return os;
 }
 
 std::ostream& operator<<(std::ostream& os, Node* const& node) {
-    return os << node->data;
+    return os << (node == nullptr ? "(null)" : std::to_string(node->data));
 }
