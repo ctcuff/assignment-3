@@ -43,7 +43,6 @@ std::unique_ptr<std::unordered_set<int>> generateUnorderedSet(int size) {
 void completeTask(ConcurrentLinkedList* list, std::unordered_set<int>* gifts, std::unordered_set<int>* cards) {
     while (cards->size() != NUM_GUESTS) {
         int task = generateRandomNumber(0, 2);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
         switch (task) {
             case TASK_ADD_PRESENT: {
@@ -63,7 +62,7 @@ void completeTask(ConcurrentLinkedList* list, std::unordered_set<int>* gifts, st
             case TASK_WRITE_CARD: {
                 if (!list->empty()) {
                     int guest = list->removeHead();
-                    std::cout << "Thank you " << guest << "!" << std::endl;
+                    std::cout << "Thank you guest" << guest << "!" << std::endl;
                     cards->insert(guest);
                 }
                 break;
