@@ -1,4 +1,5 @@
 #include "concurrent_linked_list.h"
+#include "util.h"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -6,7 +7,6 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
-#include <random>
 #include <thread>
 #include <unordered_set>
 #include <vector>
@@ -19,14 +19,6 @@
 #define TASK_SEARCH_FOR_PRESENT 2
 
 std::mutex mutex;
-
-// Note: the bounds for min and max are both inclusive
-unsigned int generateRandomNumber(int min, int max) {
-    std::random_device seed;
-    std::mt19937 rng(seed());
-    std::uniform_int_distribution<std::mt19937::result_type> dist(min, max);
-    return dist(rng);
-}
 
 // Returns a shuffled unordered set containing numbers from 0 to size - 1
 std::unique_ptr<std::unordered_set<int>> generateUnorderedSet(int size) {
@@ -48,7 +40,7 @@ std::unique_ptr<std::unordered_set<int>> generateUnorderedSet(int size) {
 // written (i.e., when the cards set has NUM_GUESTS elemnets).
 void completeTask(ConcurrentLinkedList* list, std::unordered_set<int>* giftBag, std::unordered_set<int>* cards) {
     while (cards->size() < NUM_GUESTS) {
-        int task = generateRandomNumber(0, 2);
+        int task = Util::generateRandomNumber(0, 2);
 
         switch (task) {
             // For this task, we'll take a gift from the gift bag and add it
@@ -95,7 +87,7 @@ void completeTask(ConcurrentLinkedList* list, std::unordered_set<int>* giftBag, 
                 break;
             }
             case TASK_SEARCH_FOR_PRESENT: {
-                int randomGuest = generateRandomNumber(0, NUM_GUESTS - 1);
+                int randomGuest = Util::generateRandomNumber(0, NUM_GUESTS - 1);
                 bool found __attribute__((unused)) = list->contains(randomGuest);
 
 #ifdef VERBOSE

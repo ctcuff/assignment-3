@@ -17,7 +17,7 @@ birthday_party: create_build_folder
 
 temperature: create_build_folder
 	@ mkdir -p out
-	@ $(CXX)  ./src/temperature.cpp -o $(OUT_DIR)/temperature $(CXXFLAGS)
+	@ $(CXX) ./src/temperature.cpp -o $(OUT_DIR)/temperature $(CXXFLAGS) $(FLAGS)
 
 clean:
 	@ rm -rf $(OUT_DIR)
