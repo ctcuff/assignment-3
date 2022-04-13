@@ -61,7 +61,7 @@ void completeTask(ConcurrentLinkedList* list, std::unordered_set<int>* giftBag, 
                 giftBag->erase(iter);
                 mutex.unlock();
 
-                list->orderedInsert(num);
+                list->insert(num);
                 break;
             }
             case TASK_WRITE_CARD: {

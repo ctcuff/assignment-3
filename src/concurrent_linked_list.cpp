@@ -14,40 +14,6 @@ ConcurrentLinkedList::~ConcurrentLinkedList() {
     }
 }
 
-void ConcurrentLinkedList::insertTail(int data) {
-    Node* node = new Node(data);
-    m_mutex.lock();
-
-    if (m_tail == nullptr) {
-        m_tail = node;
-        m_head = m_tail;
-    } else {
-        node->prev = m_tail;
-        m_tail->next = node;
-        m_tail = node;
-    }
-
-    m_size++;
-    m_mutex.unlock();
-}
-
-void ConcurrentLinkedList::insertHead(int data) {
-    Node* node = new Node(data);
-    m_mutex.lock();
-
-    if (m_head == nullptr) {
-        m_head = node;
-        m_tail = m_head;
-    } else {
-        node->next = m_head;
-        m_head->prev = node;
-        m_head = node;
-    }
-
-    m_size++;
-    m_mutex.unlock();
-}
-
 void ConcurrentLinkedList::remove(int key) {
     if (m_head == nullptr) {
         return;
@@ -124,7 +90,7 @@ bool ConcurrentLinkedList::empty() {
 
 // Inserts a node into the linked list while keepind the list
 // sorted in ascending order
-void ConcurrentLinkedList::orderedInsert(int data) {
+void ConcurrentLinkedList::insert(int data) {
     m_mutex.lock();
 
     Node* newNode = new Node(data);
@@ -184,20 +150,6 @@ bool ConcurrentLinkedList::contains(int key) {
 
     m_mutex.unlock();
     return false;
-}
-
-bool ConcurrentLinkedList::isSorted() {
-    Node* curr = m_head;
-
-    while (curr != nullptr && curr->next != nullptr) {
-        if (curr->data > curr->next->data) {
-            return false;
-        }
-
-        curr = curr->next;
-    }
-
-    return true;
 }
 
 // Utility function to print a ConcurrentLinkedList object using std::cout
