@@ -88,6 +88,7 @@ void completeTask(ConcurrentLinkedList* list, std::unordered_set<int>* giftBag, 
             }
             case TASK_SEARCH_FOR_PRESENT: {
                 int randomGuest = Util::generateRandomNumber(0, NUM_GUESTS - 1);
+                // Silences the unused warning when compiling when VERBOSE isn't defined
                 bool found __attribute__((unused)) = list->contains(randomGuest);
 
 #ifdef VERBOSE
