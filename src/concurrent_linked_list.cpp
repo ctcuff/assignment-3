@@ -1,8 +1,8 @@
 #include "concurrent_linked_list.h"
+#include <climits>
 #include <iostream>
 #include <string>
 #include <utility>
-#include <climits>
 
 ConcurrentLinkedList::~ConcurrentLinkedList() {
     Node* temp;
@@ -48,7 +48,6 @@ void ConcurrentLinkedList::insertHead(int data) {
     m_mutex.unlock();
 }
 
-// TODO: Don't lock the entire list at once
 void ConcurrentLinkedList::remove(int key) {
     if (m_head == nullptr) {
         return;
@@ -88,16 +87,20 @@ void ConcurrentLinkedList::remove(int key) {
     m_mutex.unlock();
 }
 
+// Removes the first element of the linked list and returns
+// its value. If this method is called on an empty linked
+// list object, this will return INT_MIN
 int ConcurrentLinkedList::removeHead() {
+    m_mutex.lock();
+
     if (m_head == nullptr) {
+        m_mutex.unlock();
         return INT_MIN;
     }
 
-    m_mutex.lock();
-
     int value = m_head->data;
     Node* temp = m_head;
-    
+
     m_head = m_head->next;
 
     delete temp;
@@ -116,7 +119,7 @@ std::size_t ConcurrentLinkedList::size() {
 }
 
 bool ConcurrentLinkedList::empty() {
-    return m_size == 0;
+    return m_head == nullptr;
 }
 
 // Inserts a node into the linked list while keepind the list
@@ -163,7 +166,7 @@ void ConcurrentLinkedList::orderedInsert(int data) {
 bool ConcurrentLinkedList::contains(int key) {
     m_mutex.lock();
 
-    if (m_size == 0) {
+    if (m_head == nullptr) {
         m_mutex.unlock();
         return false;
     }
@@ -197,11 +200,12 @@ bool ConcurrentLinkedList::isSorted() {
     return true;
 }
 
+// Utility function to print a ConcurrentLinkedList object using std::cout
 std::ostream& operator<<(std::ostream& os, std::unique_ptr<ConcurrentLinkedList> const& list) {
     if (list == nullptr) {
         return os << "(null)";
     }
-    
+
     Node* temp = list->m_head;
 
     while (temp != nullptr) {
@@ -214,6 +218,7 @@ std::ostream& operator<<(std::ostream& os, std::unique_ptr<ConcurrentLinkedList>
     return os;
 }
 
+// Utility function to print a Node object using std::cout
 std::ostream& operator<<(std::ostream& os, Node* const& node) {
     return os << (node == nullptr ? "(null)" : std::to_string(node->data));
 }

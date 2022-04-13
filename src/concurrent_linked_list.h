@@ -12,7 +12,7 @@ public:
     Node* prev;
     std::mutex mutex;
 
-    Node(int n) : data(n), next(nullptr){};
+    Node(int n) : data(n), next(nullptr), prev(nullptr){};
     ~Node() {}
 
     friend std::ostream& operator<<(std::ostream& os, Node* const& node);
