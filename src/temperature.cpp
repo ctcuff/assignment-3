@@ -1,5 +1,6 @@
 #include "util.h"
 #include <algorithm>
+#include <climits>
 #include <functional>
 #include <iostream>
 #include <memory>
@@ -25,56 +26,87 @@ bool allSensorsReady(int caller, std::vector<bool>& sensors) {
     return true;
 }
 
-std::set<int> getHighestTemperatures(std::vector<int>& sensorReadings) {
-    std::set<int> readings{};
+void printLargestDifference(std::vector<int>& sensorReadings) {
+    int step = 10;
+    int startInterval = 0;
+    int maxDifference = INT_MIN;
 
-    for (auto it = sensorReadings.rbegin(); it != sensorReadings.rend(); it++) {
-        if (readings.find(*it) == readings.end()) {
-            readings.insert(*it);
-        }
+    // Because the sensor readings are all stored in one contiguous array,
+    // we need to loop through the array in chunks to find the largest
+    // difference for that sensor
+    for (int threadIndex = 0; threadIndex < THREAD_COUNT; threadIndex++) {
+        int offset = threadIndex * MINUTES;
 
-        if (readings.size() == 5) {
-            break;
+        for (int i = offset; i < MINUTES - step + 1; i++) {
+            int max = *std::max_element(sensorReadings.begin() + i, sensorReadings.begin() + i + step);
+            int min = *std::min_element(sensorReadings.begin() + i, sensorReadings.begin() + i + step);
+            int diff = max - min;
+
+            if (diff > maxDifference) {
+                maxDifference = diff;
+                startInterval = i;
+            }
         }
     }
 
-    return readings;
+    std::cout << "Largest temperature difference: " << maxDifference << "F"
+              << " starting at minute " << startInterval
+              << " and ending at minute " << (startInterval + 10) << std::endl;
 }
 
-std::set<int> getLowestTemperatures(std::vector<int>& sensorReadings) {
-    std::set<int> readings{};
+void printHighestTemperatures(std::vector<int>& sensorReadings) {
+    std::set<int> temperatures{};
 
-    for (auto it = sensorReadings.begin(); it != sensorReadings.end(); it++) {
-        if (readings.find(*it) == readings.end()) {
-            readings.insert(*it);
+    for (auto it = sensorReadings.rbegin(); it != sensorReadings.rend(); it++) {
+        if (temperatures.find(*it) == temperatures.end()) {
+            temperatures.insert(*it);
         }
 
-        if (readings.size() == 5) {
+        if (temperatures.size() == 5) {
             break;
         }
     }
 
-    return readings;
+    std::cout << "Highest temperatures: ";
+
+    for (int temperature : temperatures) {
+        std::cout << temperature << "F ";
+    }
+
+    std::cout << std::endl;
+}
+
+void printLowestTemperatures(std::vector<int>& sensorReadings) {
+    std::set<int> temperatures{};
+
+    for (auto it = sensorReadings.begin(); it != sensorReadings.end(); it++) {
+        if (temperatures.find(*it) == temperatures.end()) {
+            temperatures.insert(*it);
+        }
+
+        if (temperatures.size() == 5) {
+            break;
+        }
+    }
+
+    std::cout << "Lowest temperatures: ";
+
+    for (int temperature : temperatures) {
+        std::cout << temperature << "F ";
+    }
+
+    std::cout << std::endl;
 }
 
 void generateReport(int hour, std::vector<int>& sensorReadings) {
     std::cout << "[Hour " << hour + 1 << " report]" << std::endl;
 
+    printLargestDifference(sensorReadings);
+
     std::sort(sensorReadings.begin(), sensorReadings.end());
-    std::set<int> highestTemperatures = getHighestTemperatures(sensorReadings);
-    std::set<int> lowestTemperatures = getLowestTemperatures(sensorReadings);
 
-    std::cout << "Highest temperatures: ";
-    for (int temperature : highestTemperatures) {
-        std::cout << temperature << "F ";
-    }
-
-    std::cout << std::endl;
-
-    std::cout << "Lowest temperatures: ";
-    for (int temperature : lowestTemperatures) {
-        std::cout << temperature << "F ";
-    }
+    printHighestTemperatures(sensorReadings);
+    printLowestTemperatures(sensorReadings);
 
     std::cout << std::endl
               << std::endl;
