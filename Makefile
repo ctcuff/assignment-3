@@ -2,13 +2,22 @@ CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wtype-limits -Wextra -lpthread
 OUT_DIR = ./out
 
-birthday_party:
-	@ mkdir -p out
+all: birthday_party temperature
+
+create_build_folder:
+	@ mkdir -p $(OUT_DIR)
+
+birthday_party: create_build_folder
 	@ $(CXX) \
 		./src/birthday_party.cpp \
 		./src/concurrent_linked_list.cpp \
+		-o $(OUT_DIR)/birthday_party \
 		$(CXXFLAGS) \
-		-o $(OUT_DIR)/birthday_party
+		$(FLAGS)
+
+temperature: create_build_folder
+	@ mkdir -p out
+	@ $(CXX)  ./src/temperature.cpp -o $(OUT_DIR)/temperature $(CXXFLAGS)
 
 clean:
 	@ rm -rf $(OUT_DIR)

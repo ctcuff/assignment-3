@@ -11,10 +11,6 @@
 #include <unordered_set>
 #include <vector>
 
-// If this is defined, output from the threads will be silenced.
-// To show thread output, comment out this line.
-#define SILENT
-
 #define THREAD_COUNT 4
 #define NUM_GUESTS 500'000
 
@@ -87,7 +83,7 @@ void completeTask(ConcurrentLinkedList* list, std::unordered_set<int>* giftBag, 
                     continue;
                 }
 
-#ifndef SILENT
+#ifdef VERBOSE
                 std::cout << "Thank you guest " << guest << "! "
                           << "(guests remaining: " << list->size() << ")"
                           << std::endl;
@@ -102,7 +98,7 @@ void completeTask(ConcurrentLinkedList* list, std::unordered_set<int>* giftBag, 
                 int randomGuest = generateRandomNumber(0, NUM_GUESTS - 1);
                 bool found __attribute__((unused)) = list->contains(randomGuest);
 
-#ifndef SILENT
+#ifdef VERBOSE
                 std::cout << "Minotaur: guest with ID "
                           << randomGuest
                           << " was " << (found ? "found" : "not found")
@@ -118,7 +114,7 @@ void completeTask(ConcurrentLinkedList* list, std::unordered_set<int>* giftBag, 
 int main() {
     std::unique_ptr<ConcurrentLinkedList> list = std::make_unique<ConcurrentLinkedList>();
     std::unique_ptr<std::unordered_set<int>> cards = std::make_unique<std::unordered_set<int>>();
-    std::thread threads[THREAD_COUNT];
+    std::thread threads[THREAD_COUNT] = {};
 
     std::cout << "Generating " << NUM_GUESTS << " numbers..." << std::endl;
 
