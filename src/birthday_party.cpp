@@ -117,7 +117,7 @@ int main() {
         threads[i] = std::thread(completeTask, list.get(), giftBag.get(), cards.get());
     }
 
-    std::cout << "Starting " << THREAD_COUNT << " tasks..." << std::endl;
+    std::cout << "Running " << THREAD_COUNT << " threads..." << std::endl;
     auto start = std::chrono::high_resolution_clock::now();
 
     for (std::thread& thread : threads) {
