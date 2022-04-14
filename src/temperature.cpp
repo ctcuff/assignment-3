@@ -122,7 +122,7 @@ void measureTemperature(int threadId, std::vector<int>& sensorReadings, std::vec
             // Make sure we wait for all sensors to take a reading before we continue
             // with another temperature reading
             while (!allSensorsReady(threadId, sensorsReady)) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
 
